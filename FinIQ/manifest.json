@@ -1,0 +1,16 @@
+{
+  "name": "FinIQ",
+  "short_name": "FinIQ",
+  "description": "FinIQ Smart Equity & Stock F&O Momentum Scanner",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#070e10",
+  "theme_color": "#070e10",
+  "icons": [
+    {
+      "src": "https://flaticon.com",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
