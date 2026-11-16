@@ -1,0 +1,27 @@
+name: Update FinIQ Data
+on:
+  schedule:
+    - cron: '30 10 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: pip install yfinance pandas numpy
+      - run: |
+          cd FinIQ
+          python analyzer.py
+      - run: |
+          git config --global user.name "FinIQ Bot"
+          git config --global user.email "bot@finiq.app"
+          git add FinIQ/data.json
+          git commit -m "Auto update FinIQ data" || exit 0
+          git push
