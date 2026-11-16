@@ -6,7 +6,6 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime
 
-# NSE Top Equity & F&O Stocks List
 FNO_TICKERS = [
     "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "ICICIBANK.NS", "INFY.NS",
     "SBIN.NS", "BAJFINANCE.NS", "TATAMOTORS.NS", "AXISBANK.NS", "LT.NS",
@@ -35,7 +34,6 @@ def run_analysis():
     buy_count = 0
     sell_count = 0
 
-    # Fetch Nifty 50 Index Data
     nifty = yf.Ticker("^NSEI").history(period="5d")
     nifty_price = round(nifty['Close'].iloc[-1], 0)
     nifty_change = round(((nifty['Close'].iloc[-1] - nifty['Close'].iloc[-2]) / nifty['Close'].iloc[-2]) * 100, 2)
@@ -46,18 +44,15 @@ def run_analysis():
             if len(df) < 200:
                 continue
             
-            # Moving Averages & Volume
             df['SMA50'] = df['Close'].rolling(50).mean()
             df['SMA200'] = df['Close'].rolling(200).mean()
             df['Vol20'] = df['Volume'].rolling(20).mean()
             
-            # RSI (14)
             delta = df['Close'].diff()
             gain = (delta.where(delta > 0, 0)).rolling(14).mean()
             loss = (-delta.where(delta < 0, 0)).rolling(14).mean()
             df['RSI'] = 100 - (100 / (1 + (gain / loss)))
             
-            # ATR (14)
             high_low = df['High'] - df['Low']
             high_close = np.abs(df['High'] - df['Close'].shift())
             low_close = np.abs(df['Low'] - df['Close'].shift())
@@ -69,7 +64,6 @@ def run_analysis():
             change_pct = ((close - float(prev['Close'])) / float(prev['Close'])) * 100
             vol_ratio = round(float(last['Volume']) / float(last['Vol20']), 2)
 
-            # 1. Equity Score (-4 to +4)
             score = (1 if close > last['SMA50'] else -1) + (1 if last['SMA50'] > last['SMA200'] else -1)
             if 45 <= last['RSI'] <= 68:
                 score += 1
@@ -103,7 +97,6 @@ def run_analysis():
                 "risk_per_share": round(risk, 2)
             })
 
-            # 2. Stock F&O IMP Points Calculation (0 to 10 Points)
             imp_points = abs(score) * 2
             if vol_ratio >= 1.5:
                 imp_points += 2
@@ -120,7 +113,6 @@ def run_analysis():
                 atm_strike = round(close / strike_step) * strike_step
                 opt_type = "CE" if is_bullish else "PE"
 
-                # Spot Stoploss & Targets
                 if is_bullish:
                     spot_sl = round(close - (1.2 * atr), 2)
                     spot_risk = close - spot_sl
@@ -132,7 +124,6 @@ def run_analysis():
                     spot_t1 = round(close - (1.8 * spot_risk), 2)
                     spot_t2 = round(close - (2.8 * spot_risk), 2)
 
-                # Estimated ATM Option Premium & Targets (Delta ~0.50)
                 est_opt_entry = round(close * 0.022, 1)
                 opt_risk = round(spot_risk * 0.50, 1)
                 est_opt_sl = max(1.0, round(est_opt_entry - opt_risk, 1))
@@ -159,11 +150,9 @@ def run_analysis():
         except Exception as e:
             print(f"Skipping {symbol}: {e}")
 
-    # Sort Equity by Score & F&O by Highest IMP Points
     results.sort(key=lambda x: x['score'], reverse=True)
     fno_setups.sort(key=lambda x: (x['imp_points'], float(x['vol_spike'].replace('x', ''))), reverse=True)
 
-    # 3. Fetch Live Global & National News Headlines
     global_news = fetch_rss_news("https://google.com", 6)
     national_news = fetch_rss_news("https://google.com", 6)
 
@@ -178,11 +167,10 @@ def run_analysis():
             "RBI maintains focus on liquidity and inflation stability."
         ]
 
-    # Save Final Output for FinIQ Dashboard
     with open("data.json", "w") as f:
         json.dump({
             "app_name": "FinIQ",
-            "updated_at": datetime.now().strftime("%a %d %b · %H:%M:%S IST"),
+            "updated_at": datetime.now().strftime("%a %d %b Â· %H:%M:%S IST"),
             "nifty": int(nifty_price),
             "day_change": nifty_change,
             "total_stocks": len(results),
@@ -195,7 +183,7 @@ def run_analysis():
             "global_news": global_news,
             "national_news": national_news
         }, f, indent=2)
-    print("FinIQ data.json ??????? ???? ?????!")
+    print("FinIQ data.json created successfully!")
 
 if __name__ == "__main__":
     run_analysis()
