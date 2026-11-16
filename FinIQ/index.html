@@ -6,11 +6,12 @@
   <title>FinIQ · Smart Equity & F&O Desk</title>
   <link rel="manifest" href="manifest.json" />
   <link href="https://googleapis.com" rel="stylesheet">
+  <script src="https://jsdelivr.net"></script>
   <style>
     :root { --bg:#070e10; --card:#0d171a; --border:#1d353b; --text:#e2f1f5; --muted:#7f9ea6; --green:#10b981; --red:#f43f5e; --amber:#f59e0b; --blue:#38bdf8; }
     body.light { --bg:#f1f5f9; --card:#ffffff; --border:#cbd5e1; --text:#0f172a; --muted:#475569; }
     * { box-sizing:border-box; margin:0; padding:0; }
-    body { background:var(--bg); color:var(--text); font-family:'JetBrains Mono',monospace; padding:16px 16px 95px 16px; max-width:480px; margin:auto; line-height:1.5; }
+    body { background:var(--bg); color:var(--text); font-family:'JetBrains Mono',monospace; padding:16px 16px 95px 16px; max-width:480px; margin:auto; line-height:1.5; overflow-x:hidden; }
     .hidden { display:none !important; }
     .frame { border:1px solid var(--border); border-radius:14px; padding:18px; background:var(--card); margin-bottom:16px; position:relative; }
     h1, h2 { font-family:'Oswald',sans-serif; letter-spacing:1px; }
@@ -19,7 +20,7 @@
     input { width:100%; padding:13px; margin:10px 0; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-family:inherit; font-size:13px; }
     .btn-primary { width:100%; background:var(--green); color:#04130d; font-family:'Oswald',sans-serif; font-size:16px; font-weight:700; padding:12px; border:none; border-radius:8px; margin-top:8px; cursor:pointer; }
     .btn-amber { width:100%; background:var(--amber); color:#04130d; font-family:'Oswald',sans-serif; font-size:16px; font-weight:700; padding:12px; border:none; border-radius:8px; margin-top:10px; cursor:pointer; }
-    .otp-banner { background:rgba(16,185,129,0.18); border:1px dashed var(--green); padding:10px; border-radius:8px; font-size:13px; color:var(--green); margin-top:12px; text-align:center; }
+    .otp-banner { background:rgba(16,185,129,0.15); border:1px dashed var(--green); padding:10px; border-radius:8px; font-size:12px; color:var(--green); margin-top:12px; text-align:center; }
     .dream-chip { display:inline-block; border:1px solid var(--border); padding:6px 10px; border-radius:20px; font-size:11px; margin:4px; cursor:pointer; }
     .dream-chip.selected { background:var(--green); color:#04130d; font-weight:bold; }
     .header { display:flex; justify-content:space-between; align-items:flex-start; }
@@ -39,8 +40,8 @@
     .tag-global { background:rgba(56,189,248,0.18); color:var(--blue); border:1px solid var(--blue); }
     .tag-national { background:rgba(245,158,11,0.18); color:var(--amber); border:1px solid var(--amber); }
     .news-text { font-size:12px; color:var(--text); }
-    .overlay { position:fixed; inset:0; background:rgba(4,10,12,0.92); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; }
-    .modal-box { background:var(--card); border:1px solid var(--border); border-radius:16px; max-width:420px; width:100%; padding:22px; text-align:center; position:relative; }
+    .overlay { position:fixed; inset:0; background:rgba(4,10,12,0.94); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; }
+    .modal-box { background:var(--card); border:1px solid var(--border); border-radius:16px; max-width:420px; width:100%; padding:22px; text-align:center; }
     .cake-btn { font-size:85px; cursor:pointer; display:inline-block; margin:15px 0; }
     .rose { position:fixed; top:-40px; font-size:28px; z-index:300; pointer-events:none; animation:fall linear forwards; }
     @keyframes fall { to { transform:translateY(105vh) rotate(360deg); } }
@@ -50,24 +51,50 @@
 </head>
 <body>
 
-  <!-- 1. MAIN DASHBOARD OPENS IMMEDIATELY FIRST -->
-  <div id="dashboardScreen">
+  <!-- 1. SINGLE-BOX LOGIN -->
+  <div id="loginScreen" class="frame">
+    <h1 class="title-bar">FinIQ</h1>
+    <div class="sub">SMART MARKET INTELLIGENCE · SECURE ACCESS</div>
+    <p style="font-size:12px; color:var(--muted); margin:14px 0 4px;">Enter Mobile Number or Email ID:</p>
+    <input type="text" id="contactInput" placeholder="Mobile Number or Email ID" />
+    <button id="sendOtpBtn" class="btn-primary" onclick="handleSendOTP()">SEND OTP</button>
+
+    <div id="otpSection" class="hidden">
+      <div class="otp-banner">Your FinIQ OTP Code is: <strong id="otpDisplay" style="font-size:16px;"></strong></div>
+      <input type="number" id="otpInput" placeholder="Enter 6-Digit OTP" />
+      <button class="btn-primary" onclick="handleVerifyOTP()">VERIFY & LOGIN</button>
+    </div>
+  </div>
+
+  <!-- 2. 10 DREAMS & BIRTHDAY -->
+  <div id="onboardingScreen" class="frame hidden">
+    <h1 class="title-bar">FinIQ · 10 DREAMS</h1>
+    <div class="sub">SET YOUR BIRTHDAY & GOALS</div>
+    <p style="font-size:12px; color:var(--amber); margin-top:12px;">1. Date of Birth:</p>
+    <input type="date" id="dobInput" />
+    <p style="font-size:12px; color:var(--amber); margin-top:10px;">2. Select up to 10 Dreams (<span id="dreamCount">0</span>/10):</p>
+    <div id="presetDreams" style="margin:8px 0;"></div>
+    <input type="text" id="customDreamInput" placeholder="Type a dream & press Enter..." onkeypress="addDream(event)" />
+    <button class="btn-primary" onclick="handleSaveProfile()">START 20-DAY FREE ACCESS</button>
+  </div>
+
+  <!-- 3. MAIN DASHBOARD -->
+  <div id="dashboardScreen" class="hidden">
     <div class="frame">
       <div class="header">
         <div>
           <h1 class="title-bar">FinIQ</h1>
-          <div class="sub">EQUITY & F&O DESK · <span id="userGreeting" class="green">GUEST VIEW</span></div>
-          <div id="timestamp" style="font-size:11px; color:var(--muted); margin-top:4px;">Loading live market data...</div>
+          <div class="sub">EQUITY & F&O DESK · <span id="userGreeting" class="green"></span></div>
+          <div id="timestamp" style="font-size:11px; color:var(--muted); margin-top:4px;">Loading...</div>
         </div>
         <div style="display:flex; gap:8px;">
-          <button type="button" class="icon-btn" onclick="document.body.classList.toggle('light')">☀</button>
-          <button type="button" class="icon-btn" onclick="var m=document.getElementById('menu');m.style.display=m.style.display==='block'?'none':'block';">⋮</button>
+          <button class="icon-btn" onclick="document.body.classList.toggle('light')">☀</button>
+          <button class="icon-btn" onclick="toggleMenu()">⋮</button>
         </div>
       </div>
       <div id="menu" class="dropdown">
-        <button type="button" onclick="requireLogin('dreamsModal');document.getElementById('menu').style.display='none';">My 10 Dreams</button>
-        <button type="button" onclick="document.getElementById('strategyModal').classList.remove('hidden');document.getElementById('menu').style.display='none';">Strategy Details</button>
-        <button type="button" onclick="document.getElementById('loginModal').classList.remove('hidden');document.getElementById('menu').style.display='none';">Member Login / OTP</button>
+        <button onclick="openModal('dreamsModal'); toggleMenu();">My 10 Dreams</button>
+        <button onclick="openModal('strategyModal'); toggleMenu();">Strategy Details</button>
       </div>
       <div class="pills" id="marketPills"></div>
     </div>
@@ -82,7 +109,7 @@
         <div id="pickSymbol" style="font-family:'Oswald',sans-serif; font-size:30px;">LOADING</div>
         <div id="pickPrice" style="font-size:14px; font-weight:700;">₹0.00</div>
       </div>
-      <button type="button" class="btn-primary" onclick="requireLogin('allStocksModal')">VIEW ALL EQUITY SIGNALS</button>
+      <button class="btn-primary" onclick="openModal('allStocksModal')">VIEW ALL EQUITY SIGNALS</button>
       <div style="font-size:12px; color:var(--blue); font-weight:700; margin:12px 0 6px;">TRADE PLAN</div>
       <div class="plan-row"><span>Entry</span><strong id="planEntry">₹0.00</strong></div>
       <div class="plan-row"><span>Stoploss</span><span class="red" id="planSL">₹0.00</span></div>
@@ -103,17 +130,6 @@
           <div id="fnoMeta" style="font-size:11px; color:var(--muted);">Vol: -- · RSI: --</div>
         </div>
       </div>
-      <button type="button" class="btn-amber" onclick="requireLogin('allFnoModal')">VIEW ALL F&O STRIKES</button>
+      <button class="btn-amber" onclick="openModal('allFnoModal')">VIEW ALL F&O STRIKES</button>
       <div class="split-grid">
         <div class="sub-box">
-          <div style="font-size:11px; color:var(--blue); font-weight:700; margin-bottom:6px;">SPOT LEVELS</div>
-          <div class="plan-row" style="font-size:12px;"><span>Entry</span><strong id="fnoSpotEntry">--</strong></div>
-          <div class="plan-row" style="font-size:12px;"><span>SL</span><span class="red" id="fnoSpotSL">--</span></div>
-          <div class="plan-row" style="font-size:12px;"><span>T1</span><span class="green" id="fnoSpotT1">--</span></div>
-          <div class="plan-row" style="font-size:12px;"><span>T2</span><span class="green" id="fnoSpotT2">--</span></div>
-        </div>
-        <div class="sub-box">
-          <div style="font-size:11px; color:var(--amber); font-weight:700; margin-bottom:6px;">OPTION (EST.)</div>
-          <div class="plan-row" style="font-size:12px;"><span>Entry</span><strong id="fnoOptEntry">--</strong></div>
-          <div class="plan-row" style="font-size:12px;"><span>SL</span><span class="red" id="fnoOptSL">--</span></div>
-          <div class="plan-row" style="font-size:12px;"><span>T1</span><span class="green" id="fnoOptT1">--</span></div>
