@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FinIQ · Smart Equity & F&O Desk</title>
+  <title>FinIQ Â· Smart Equity & F&O Desk</title>
   <link rel="manifest" href="manifest.json" />
   <link href="https://googleapis.com" rel="stylesheet">
   <script src="https://jsdelivr.net"></script>
@@ -52,19 +52,24 @@
     .sub { font-size: 11px; color: var(--muted); margin-top: 4px; letter-spacing: 1px; }
     
     input {
-      width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px;
+      width: 100%; padding: 13px; margin: 10px 0; border-radius: 8px;
       border: 1px solid var(--border); background: var(--bg); color: var(--text);
       font-family: inherit; font-size: 13px;
     }
     .btn-primary {
       width: 100%; background: var(--green); color: #04130d; font-family: 'Oswald', sans-serif;
       font-size: 16px; font-weight: 700; padding: 12px; border: none; border-radius: 8px;
-      margin-top: 10px; cursor: pointer; letter-spacing: 0.5px;
+      margin-top: 8px; cursor: pointer; letter-spacing: 0.5px;
     }
     .btn-amber {
       width: 100%; background: var(--amber); color: #04130d; font-family: 'Oswald', sans-serif;
       font-size: 16px; font-weight: 700; padding: 12px; border: none; border-radius: 8px;
       margin-top: 10px; cursor: pointer; letter-spacing: 0.5px;
+    }
+    .otp-banner {
+      background: rgba(16, 185, 129, 0.14); border: 1px dashed var(--green);
+      padding: 10px; border-radius: 8px; font-size: 12px; color: var(--green);
+      margin-top: 12px; text-align: center;
     }
     .dream-chip {
       display: inline-block; border: 1px solid var(--border); padding: 6px 10px;
@@ -143,7 +148,6 @@
     }
     @keyframes shrink { from { width: 100%; } to { width: 0%; } }
 
-    /* Modals & Overlays */
     .overlay {
       position: fixed; inset: 0; background: rgba(4, 10, 12, 0.94);
       z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -168,57 +172,57 @@
 </head>
 <body>
 
-  <!-- 1. OTP LOGIN SCREEN -->
+  <!-- 1. SINGLE-BOX OTP LOGIN SCREEN -->
   <div id="loginScreen" class="frame">
     <h1 class="title-bar">FinIQ</h1>
-    <div class="sub">SMART MARKET INTELLIGENCE · SECURE ACCESS</div>
-    <p style="font-size: 12px; color: var(--muted); margin: 14px 0;">
-      FinIQ-? ???? ???? ????? ?????? ????? ???? ????? ???? ????
+    <div class="sub">SMART MARKET INTELLIGENCE Â· SECURE ACCESS</div>
+    <p style="font-size: 12px; color: var(--muted); margin: 14px 0 6px;">
+      Enter your Mobile Number or Email ID to get instant access.
     </p>
-    <input type="text" id="userNameInput" placeholder="????? ??? ????? (????: Rahul)" />
-    <input type="text" id="contactInput" placeholder="?????? ????? ?? ????? ???? ???" />
+    
+    <!-- ONLY ONE INPUT BOX -->
+    <input type="text" id="contactInput" placeholder="Enter Mobile Number or Email ID" />
     <button id="sendOtpBtn" class="btn-primary" onclick="sendOTP()">SEND OTP</button>
 
-    <div id="otpSection" class="hidden" style="margin-top: 14px;">
-      <p style="font-size: 11px; color: var(--green);">OTP ?????? ?????! (????? ???: 123456)</p>
-      <input type="number" id="otpInput" placeholder="?-??????? OTP ???" />
-      <button class="btn-primary" onclick="verifyOTP()">VERIFY & CONTINUE</button>
+    <div id="otpSection" class="hidden">
+      <div class="otp-banner">
+        OTP Sent! Your verification code is: <strong id="generatedOtpText" style="font-size: 15px;"></strong>
+      </div>
+      <input type="number" id="otpInput" placeholder="Enter 6-Digit OTP" />
+      <button class="btn-primary" onclick="verifyOTP()">VERIFY & LOGIN</button>
     </div>
   </div>
 
   <!-- 2. 10 DREAMS & BIRTHDAY SETUP SCREEN -->
   <div id="onboardingScreen" class="frame hidden">
-    <h1 class="title-bar">FinIQ · 10 DREAMS</h1>
+    <h1 class="title-bar">FinIQ Â· 10 DREAMS</h1>
     <div class="sub">PERSONALIZE YOUR JOURNEY</div>
     
-    <p style="font-size: 12px; color: var(--amber); margin-top: 14px;">?. ????? ????????? (Date of Birth) ???:</p>
+    <p style="font-size: 12px; color: var(--amber); margin-top: 14px;">1. Select your Date of Birth (For Birthday Surprise):</p>
     <input type="date" id="dobInput" />
 
     <p style="font-size: 12px; color: var(--amber); margin-top: 12px;">
-      ?. ????? ?????? ???? ?????? (10 Dreams) ??????? ?? ????? (<span id="dreamCount">0</span>/10):
+      2. Choose or type your 10 Life Dreams (<span id="dreamCount">0</span>/10):
     </p>
     <div id="presetDreams" style="margin: 8px 0;"></div>
-    <input type="text" id="customDreamInput" placeholder="????? ???? ?????? ???? Enter ?????..." onkeypress="addCustomDream(event)" />
+    <input type="text" id="customDreamInput" placeholder="Type your own dream & press Enter..." onkeypress="addCustomDream(event)" />
     
     <button class="btn-primary" onclick="saveProfile()">START MY 20-DAY FREE ACCESS</button>
   </div>
 
-  <!-- 3. MAIN FinIQ DASHBOARD (NO PAYMENT BUTTONS DURING FREE/PAID PERIOD) -->
+  <!-- 3. MAIN FinIQ DASHBOARD (ZERO PAYMENT UI DURING FREE/PAID PERIOD) -->
   <div id="dashboardScreen" class="hidden">
     <div class="frame">
       <div class="header">
         <div>
           <h1 class="title-bar">FinIQ</h1>
-          <div class="sub">EQUITY & F&O ENGINE · <span id="userGreeting" class="green"></span></div>
+          <div class="sub">EQUITY & F&O ENGINE Â· <span id="userGreeting" class="green"></span></div>
           <div id="timestamp" style="font-size: 11px; color: var(--muted); margin-top: 4px;">Loading...</div>
         </div>
         <div style="display:flex; gap:8px;">
-          <button class="icon-btn" onclick="toggleTheme()">?</button>
-          <button class="icon-btn" onclick="toggleMenu()">?</button>
+          <button class="icon-btn" onclick="toggleTheme()">â˜€</button>
+          <button class="icon-btn" onclick="toggleMenu()">â‹®</button>
         </div>
       </div>
 
       <div id="menu" class="dropdown">
-        <button onclick="toggleTheme(); toggleMenu();">Light / Dark Mode</button>
-        <button onclick="openModal('dreamsModal'); toggleMenu();">My 10 Dreams</button>
-        <button onclick="openModal('strategyModal'); toggleMenu();">FinIQ Strategy Details</button>
